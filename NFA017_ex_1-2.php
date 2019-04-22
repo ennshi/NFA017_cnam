@@ -8,18 +8,19 @@
 			padding-left: 10px;
 			font-family: Arial, sans-serif;
 		}
-			label {
-				width: 130px;
-				display: inline-block;
-			}
-			button{
-				margin-left: 130px;
-				width: 80px;
-				height: 30px;
-			}
-			div {
-				margin-top: 20px;
-			}
+		label {
+			width: 130px;
+			display: inline-block;
+		}
+		button {
+    		    background-color: white;
+    			width: 150px;
+    			height: 30px;
+    			margin-left: 130px;
+    	}
+		div {
+			margin-top: 20px;
+		}
 		</style>
 		<script>
 			document.addEventListener('keyup', function() {
@@ -38,31 +39,62 @@
 	</head>
 	<body>
 			<?php 
-			$showForm = true;
-			$name = "";
-			$sujet = "";
-			$message = "";
-			$email = "";
-			if(count($_POST) > 0){
-				function valEmail($mail){
-					$ref = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
-					return preg_match($ref, $mail);
-				}
-				$email = trim($_POST['email']);
-				$name = trim($_POST['name']);
-				$sujet = trim($_POST['sujet']);
-				$message = trim($_POST['message']);
-				if(valEmail($email)) {
-					mail('admin@gmail.com', 'New message', "$name $email $sujet $message");
-					$msg = "Merci de nous avoir contacter.";
-					$showForm = false;
-				}
-				else {
-					$msg = "L'adresse email n'est pas valide.";
-				}
-			}
-			else {
-				$msg = "";
+			session_start();
+			date_default_timezone_set("Europe/Paris");
+			
+			if(isset($_SESSION['name'])){
+			    //  stocker dans un cookies le nombre de visites client:
+			    function counter() {
+			        if(isset($_COOKIE['count'])){
+			            $_COOKIE['count']++;
+			        } else {
+			            $_COOKIE['count'] = 1;
+			        }
+			        return $_COOKIE['count'];
+			    }
+			    setcookie('count', counter(), time()+86400);
+			    // deconnecter et supprimer la session:
+			    if(time() - $_SESSION['auth_timestamp'] > 600) {
+			        header('Location: logout.php');
+			    }
+			    
+			    /*stocker dans un fichier contact.log, les informations:
+			     - La date et l’heure de visite client;
+			     - Le mot de passe et username du client;
+			     - Son adresse IP */
+			    $currentTime = date('Y-m-d H:i:s');
+			    $fp = fopen('contact_log.txt', 'a');
+			    fwrite($fp, "/Date: {$currentTime}\t Username: {$_SESSION['name']}\t IP: {$_SERVER['REMOTE_ADDR']}/\t \n");
+			    fclose($fp);
+			    //display of formulaire and post check
+    			$showForm = true;
+    			$name = "";
+    			$sujet = "";
+    			$message = "";
+    			$email = "";
+    			if(count($_POST) > 0){
+    				function valEmail($mail){
+    					$ref = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
+    					return preg_match($ref, $mail);
+    				}
+    				$email = trim($_POST['email']);
+    				$name = trim($_POST['name']);
+    				$sujet = trim($_POST['sujet']);
+    				$message = trim($_POST['message']);
+    				if(valEmail($email)) {
+    					mail('admin@gmail.com', 'New message', "$name $email $sujet $message");
+    					$msg = "Merci de nous avoir contacter.";
+    					$showForm = false;
+    				}
+    				else {
+    					$msg = "L'adresse email n'est pas valide.";
+    				}
+    			}
+    			else {
+    				$msg = "";
+    			}
+			} else {
+			    header('Location: index.php');
 			}
 		?>
 		<h1>Formulaire de contact</h1>
@@ -83,5 +115,6 @@
 		<div>
 			<?php echo $msg; ?>
 		</div>
+		<a href="logout.php"><button>Se d&eacute;connecter</button></a>
 	</body>
 </html>
