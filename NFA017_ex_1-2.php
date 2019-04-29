@@ -22,25 +22,13 @@
 			margin-top: 20px;
 		}
 		</style>
-		<script>
-			document.addEventListener('keyup', function() {
-				let nameInput = document.getElementById('name').value;
-				let emailInput = document.getElementById('email').value;
-				let sujetInput = document.getElementById('sujet').value;
-				let messInput = document.getElementById('message').value;
-				if (nameInput != "" && emailInput != "" && messInput != "" && sujetInput != "") {
-				document.getElementById('envoyer').removeAttribute('disabled');
-				} 
-				else {
-				document.getElementById('envoyer').setAttribute('disabled', null); 
-				}
-			}); 
-		</script>
 	</head>
 	<body>
 			<?php 
+			require_once 'ContactFormulaire.php';
+			
 			session_start();
-			date_default_timezone_set("Europe/Paris");
+		
 			
 			if(isset($_SESSION['name'])){
 			    //  stocker dans un cookies le nombre de visites client:
@@ -60,7 +48,7 @@
 			    
 			    /*stocker dans un fichier contact.log, les informations:
 			     - La date et l’heure de visite client;
-			     - Le mot de passe et username du client;
+			     - L'username du client;
 			     - Son adresse IP */
 			    $currentTime = date('Y-m-d H:i:s');
 			    $fp = fopen('contact_log.txt', 'a');
@@ -72,29 +60,38 @@
     			$sujet = "";
     			$message = "";
     			$email = "";
+    			
+    			
     			if(count($_POST) > 0){
-    				function valEmail($mail){
-    					$ref = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
-    					return preg_match($ref, $mail);
-    				}
-    				$email = trim($_POST['email']);
-    				$name = trim($_POST['name']);
-    				$sujet = trim($_POST['sujet']);
-    				$message = trim($_POST['message']);
-    				if(valEmail($email)) {
-    					mail('admin@gmail.com', 'New message', "$name $email $sujet $message");
-    					$msg = "Merci de nous avoir contacter.";
-    					$showForm = false;
-    				}
-    				else {
-    					$msg = "L'adresse email n'est pas valide.";
-    				}
+    			    
+        			    $form = new ContactFormulaire();
+        			    
+        				$email = trim($_POST['email']);
+        				$name = trim($_POST['name']);
+        				$sujet = trim($_POST['sujet']);
+        				$message = trim($_POST['message']);
+                        $cap = $_POST['captcha'];
+        				
+        				
+        				$form->recupForm($name, $email, $sujet, $message, $cap);
+        				
+        				if($form->testForm()){
+        				    $showForm = false;
+        				    $form->envoiMail();
+        				    $msg = "Votre message:<br>\"{$form->afficheMessage()}\"<br> a ete envoye avec succes. Merci de nous avoir contacte.";
+        				} else {
+        				    $msg="<br>";
+        				    foreach($form->afficheErreur() as $erreur){
+        				        $msg .="{$erreur}<br>";
+        				    }
+        				}
+
     			}
     			else {
     				$msg = "";
     			}
 			} else {
-			    header('Location: index.php');
+			    header('Location: login.php');
 			}
 		?>
 		<h1>Formulaire de contact</h1>
@@ -109,12 +106,17 @@
 				<input id="sujet" name="sujet" type="text" value= "<?php echo $sujet; ?>" /> <br/><br/>
 			<label for="message">Message :</label>
 				<textarea id= "message" name= "message" cols="20" rows="5"><?php echo $message; ?></textarea><br/><br/>
-			<button id="envoyer" type="submit" disabled>Envoyer</button>
+			<img src="captcha.php" /><br/><br/>
+			<input type="text" name="captcha" /><br/><br/>
+			
+			<button id="envoyer" type="submit">Envoyer</button>
 		</form>
 		<?php } ?>
 		<div>
 			<?php echo $msg; ?>
+			
 		</div>
+		<br>
 		<a href="logout.php"><button>Se d&eacute;connecter</button></a>
 	</body>
 </html>

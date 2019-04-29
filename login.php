@@ -9,13 +9,11 @@ if(count($_POST) > 0) {
     
     if(isset($_POST['name'])&&!empty($_POST['name'])&&isset($_POST['password'])&&!empty($_POST['password'])){
         
-        
             $_SESSION['name'] = $name;
             $_SESSION['password'] = $password;
             $_SESSION['auth_timestamp'] = time();
             header('Location: NFA017_ex_1-2.php');
       
-        
     } else {
         $msg = 'Tous les champs doivent etre remplis.';
     }
