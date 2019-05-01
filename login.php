@@ -27,35 +27,23 @@ else {
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="utf-8" />
 		<title>Login</title>
-		<style>
-    		body {
-    			padding-left: 10px;
-    			font-family: Arial, sans-serif; }
-    		label {
-    			width: 130px;
-    			display: inline-block; }
-    		button {
-    			margin-left: 130px;
-    			width: 80px;
-    			height: 30px; }
-    		div {
-    			margin-top: 20px; }
-	   </style>
+		<link rel="stylesheet" type="text/css" href="style.css" />
 	</head>
 	<body>
-		<h1>Authentification</h1>
-		<form method="post">
-			<label for="name">Username :</label>
-				<input id="name" name="name" type="text" value= "<?php echo $name; ?>" autofocus /> <br/><br/>
-			<label for="password">Mot de passe:</label>
-				<input id="password" name="password" type="password" value= ""/><br/><br/>
-			<button id="envoyer" type="submit">Login</button>
-		</form>
-		<div>
-        	<?=$msg; ?>
-        </div>
-
+		<main>
+			<h1>Authentification</h1>
+    		<form method="post">
+    			<label for="name">Username :</label>
+    				<input id="name" name="name" type="text" value= "<?php echo $name; ?>" autofocus /> <br/><br/>
+    			<label for="password">Mot de passe:</label>
+    				<input id="password" name="password" type="password" value= ""/><br/><br/>
+    			<button class="button" type="submit">Login</button>
+    		</form>
+    		<div>
+            	<?=$msg; ?>
+            </div>
+		</main>
 	</body>
 </html>
